@@ -1,0 +1,125 @@
+Jar/War:
+
+          Jar file (Java Archieve):
+                                    JAR files are primarily used to packaging and distribute java libraries,classes
+                                    and resources.They are commonly used for standalone java applications,libraries
+                                    and command-line tools.
+
+
+         WAR file(Web Archieve):
+                                 WAR file are specifically designed for packaging and deploying web application in java
+                                 They contain all the components of a web application, including servlets,jsp files,
+                                 HTML pages,js,css and configuration files.
+
+
+The main differences are:
+
+
+1.Structure:
+
+              in JAR:
+                      * JAR files are typically structures as a flat archive
+                      
+                      * meaning they contains a collection of java class files and resources organized within a directory structure.
+                       
+                      * They do not have a specific directory hierarchy for web-related components like web pages or servlets.
+
+              in WAR:
+                      * WAR files have a well defined directory structure that follows the java EE(Enterprise Edition) specifications.They
+                        include directories like WEB_INF for configuration files(i.e web.xml)
+
+                      * classes for compiled java classes, and lib for external libraries(JAR files)
+
+                      * web content such as HTML, JSP, JS, and CSS files are typically places outside the WEB_INF directory.
+
+2.Deployment:
+
+             in JAR:
+                     JAR files are generally used for standalone applications that are not meant for web deployment.
+                     they are usually executed using the java -jar command or added to the classpath.
+
+             in WAR:
+                     WAR files are specifically designed for deployment in web application(i.e Apache Tomcat).they are
+                     placed in the appropriate directory(usually  the webapps directory)of the web server, and the server
+                     deploys and manages the web application.
+
+3.Main Entry Point:
+                 
+                 in JAR:
+                         JAR files may contain a Main-class attribute in their manifest file, specifying the class
+                         that serves as the entry point when executing the JAR file.this is common for executable JAR's.
+
+                 in WAR:
+                         WAR files do not have a single main entry point like executable JAR's.they contain web components
+                         (servlets,JSP's)that are invoked based on HTTP request received by the web server.
+
+
+how to run project(deploy) using runnable JAR file:
+
+                                            1. create the jar file of the application(mvn clean install -Dskip Tests)
+                                            2. JAR file will be created in target folder.
+                                            3. go to that path and open cmd 
+                                            4. execute java -jar springBootApp.0.0.SNAPSHOT.jar(jar-name)
+                                            5.then the project will be up and running.
+
+How to deploy WAR file in tomcat:
+
+                                  1.create the war file of the application(mvn clean install -Dskip Tests)
+                                  2.WAR file will be created in target folder.
+                                  3.download the tomcat, extract it and go inside the folder and click on confi folder and open the tomcat users
+                                     in order to acess the tomcat we need to add the user in it.
+                                  
+                                  4.add <user username="root" password="root" roles="manager-gui,manager-script"/>
+                                     (only for the 1st time we need to add the user) 
+                                  5.To start the tomcat, you need to go to bin folder and double click on startup file then the tomcat will run.
+                                  6.open the tomcat in browser(http://localhost:8080)
+                                  7.go to Manager App and it will ask the username and password.
+                                  8.search for WAR file to deploy and choose the file by selecting the war file and deploy.
+                                  9.verify the url's.
+
+
+Note:
+      1.To create a jar file(zip file) -> jar -cvf sampleapp.jar test.class   // here c means create, v means verbose and f means named file 
+      2.To extract the jar file(unzip file) -> jar -xvf sampleapp.jar         // here x means extract
+      3.To see the table of conetent in jar file -> jar -tvf sampleapp.jar    // here it will display the names of the classes present in that file.
+
+
+
+
+
+
+SpringBoot unit testing with JUnit and Mockito:
+                                                  1.DataJpaTest annotation -> it is a class level annotation we will use it instead of SpringBootTest annotation
+                                                                              because in DataJpaTest, it will disable full auto-configuration and instead applys
+                                                                              only configuration relevant to JPA tests.
+
+
+                                                  2.In order to write any test case, first you need to annotate with @Test then only it will consider as test case.
+               
+                                                  3.DisplayName annotation -> it is used to display the custom name for the test case.
+     
+                                                  4.assertNotNull method -> it will check whether the given object or value is not null.
+
+                                                  5.Mock annotation -> it is used to create a mock object for a particular class.
+                                                 
+                                                  6.Injectmocks annotation -> it is used to inject the mock object into the class being tested.
+                                                                              (it creates an instance of the object and inject the mocks to it)
+
+                                                  7.when(movieRepository.save(movie)).thenReturn(movie) -> This means when movierepository calls the save method then it will return movie.
+ 
+                                                  8.WebMvcTest annotation -> it is a class level annotation.it is used for spring MVC test that focuses only on spring MVC components.
+                                                                             
+                                                                              * Using this annotation will disable fill auto-configuration and instead apply only configuration relevant to MVC tests
+                                                                                (@controller, @ControllerAdvice but not @component, @service, and @repository beans)
+                                                 
+                                                  9.ObjectMapper -> it is used to convert the object into string.
+ 
+                                                  10.MockBean annotation -> it creates mock and inject into application context where as mock annotation only creates it.
+
+Note:
+
+      * To write any test case, three things are required,
+                                                            1.Arrange -> Setting up the data that required for the test case
+                                                            2.Act -> Calling a method that is being tested
+                                                            3.Assert -> Verify that the expected result is correct or not.
+                    
