@@ -122,4 +122,398 @@ Note:
                                                             1.Arrange -> Setting up the data that required for the test case
                                                             2.Act -> Calling a method that is being tested
                                                             3.Assert -> Verify that the expected result is correct or not.
-                    
+
+
+Spring Security:
+
+                  spring security typically covers:
+                                                     1.Login and logout functionality.
+                                                     2.Allow/block acess URLs to logged in users.
+                                                     3.Allow/block access to URLs to logged in users And with certain roles.
+
+
+5 core concepts in spring security:
+                                    1.Authentication - Who is this user(ex userid,password)
+                                    2.Authorization - Are they allowed to do this
+                                    3.Principal - currently logged-in user
+                                    4.Granted Authority - permission given to role. 
+                                    5.Roles - role is like privilege to access for something.
+
+
+how to add spring security to springboot project:
+
+                                                   1.add the spring-boot-starter-security dependency.
+                                                   2.it will automatically creates the login page to secure URLs.
+                                                   3.By default it will create the user as user and generate the password in console.
+                                                     using those credentials we can login into it.
+                                                   4.we can override the default credentials by mentioning crendentials in application.properties files.
+
+                                                             i.e spring.security.user.name=raju
+                                                                 spring.security.user.password=raju
+                                                 
+                                                   5.the above is only for one user and it is basic and not provide full security.
+                                                   6.we need configure the security (but this is temporarly stores credentials but not in database).
+                                                  
+                                                   7.
+
+                                                      @EnableWebSecurity
+                                                      public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+	
+	                                                         @Override
+	                                                         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		
+		                                                              auth.inMemoryAuthentication()
+		                                                                   .withUser("raju")
+		                                                                   .password("raju")
+		                                                                   .roles("USER")
+		                                                                   .and()
+		                                                                   .withUser("sandy")
+		                                                                   .password("sandy")
+		                                                                   .roles("ADMIN");
+	
+	                                                                    }
+	
+	                                                         @Bean
+	                                                         public PasswordEncoder getPasswordEncoder() {
+		                                                    return NoOpPasswordEncoder.getInstance();
+	                                                           }
+                                                                  }
+
+authorization:
+               logged in person can access only particular apis.
+
+@EnableWebSecurity
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+
+		auth.inMemoryAuthentication()
+		    .withUser("raju")
+		    .password("raju")
+		    .roles("USER")
+		    .and()
+		    .withUser("sandy")
+			.password("sandy")
+			.roles("ADMIN");
+
+	}
+
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		return NoOpPasswordEncoder.getInstance();
+	}
+	
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests()
+		    .antMatchers("/persons/admin").hasRole("ADMIN")    //hasRole means only single person can access it.
+		    .antMatchers("/persons/user").hasAnyRole("USER", "ADMIN")   //hasAnyRole means multiple can access it.
+			.antMatchers("/persons/").permitAll()
+			.and().formLogin();
+
+	}
+
+}
+
+
+Note:
+      permitted access roles should be Most restricted to least restricted.
+
+
+JDBC Authentication:
+                    JDBC authentication with default schema using h2 database.
+
+
+@EnableWebSecurity
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	DataSource dataSource;
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.jdbcAuthentication()
+		    .dataSource(dataSource)
+		    .withDefaultSchema()
+		    .withUser(
+		    		User.withUsername("user")
+		    		.password("user")
+		    		.roles("USER")
+		    		)
+		    .withUser(
+		    		User.withUsername("admin")
+		    		.password("admin")
+		    		.roles("ADMIN")
+		    		);
+	}
+	
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		return NoOpPasswordEncoder.getInstance();
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests()
+		    .antMatchers("/persons/admin").hasRole("ADMIN")
+		    .antMatchers("/persons/user").hasAnyRole("USER","ADMIN")
+		    .antMatchers("/persons/").permitAll()
+		    .and().formLogin();
+	}
+	
+}
+
+
+JDBC Authentication using mysql with user schema:
+
+@EnableWebSecurity
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	DataSource dataSource;
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.jdbcAuthentication()
+		    .dataSource(dataSource)
+		    .withUser("user")
+		    .password("user")
+		    .roles("USER")
+		    .and()
+		    .withUser("admin")
+		    .password("admin")
+		    .roles("ADMIN");
+	}
+	
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		return NoOpPasswordEncoder.getInstance();
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests()
+		    .antMatchers("/persons/admin").hasRole("ADMIN")
+		    .antMatchers("/persons/user").hasAnyRole("USER","ADMIN")
+		    .antMatchers("/persons/").permitAll()
+		    .and().formLogin();
+	} 
+}
+
+
+Spring security with LDAP:
+                           1.add the dependencies(spring-boot-starter-security, unboundedid-ldapsdk,spring-ldap-core,spring-security-ldap).
+                           2.add the details of LDAP in application.properties file.
+                           3.create the file under resouces(which is data about user information) in .ldif format.
+                           4.create the security configuration file.
+                           5.then test it.
+
+
+Spring security with JWT:
+
+
+	
+
+Note:
+       JWT is divided into 3 types: 1.header - in contains the type(jwt) and alogorithm(which is used to verify the signature).
+                                    2.payload -it contains the user information.
+                                    3.signature.(it will check whether given information is correct or not).
+
+
+
+ 
+Microservices:
+               1.@Bean -> it is like producer.it will create something and whenever someone ask for it will provide to them.
+               2.@autowired -> it is like consumer and it will consume for the bean and uses in that class.
+
+rest template -> it is blocking and synchronous that means it uses one thread per request for api.this means it will wait for a response after making request
+                 to a remote server thus blocking the thread this whole time.
+
+                 * Rest template is used to create applications that consume RESTful web services for all HTTP methods.
+
+web client -> it is non-blocking and Asynchronous.
+
+
+fault tolerance -> fault tolerance means given a microservice application, what is the impact when there is a fault,
+                   will the whole application goes down or part of functionality goes down or there are some
+                   arrangements to handle failure.
+
+                   * Fault tolerance is the capacity to operate effectively even in the presence of faults.
+
+Resilience -> resilience means how many faults the system can tolerate.
+
+              * i would define resilience as the ability of software systems to recover from failure and continue
+                operating without significant downtime.
+
+
+    
+                          movie                Movie
+                          info        ------>  DB
+           ----------->  service
+           |
+           |
+
+       movie              rating
+      catalog   ------>   data
+      service             service
+
+        ^
+        |
+        |-------------->   Discovery
+                          server
+                          (Eureka server)
+
+
+How threads works in a web server:
+                                   whenever the request comes in a web server, the web server creates the thread and 
+                                   gives back reponse and then the thread will die.This how threads works in web server.
+
+                                  * whenever the request comes in a web server, the web server create the thread and 
+                                    it taking some time to process that request and again another request comes, the
+                                    web server create the thread and this is also taking some time to process that request
+                                    and so on for other request also.In this case,resources(tomcat for example) get consumed (the maximum no. of threads)
+                                    and you can not do anything.
+                                 
+
+ 
+
+ issue with microservices:
+                            1.service goes down(any microservice goes down) -> solution is create or run multiple instances of that microservices.
+
+                            2.a microservice instance is slow -> solution is:
+                                                                              1.by using the timeouts(it partially solves the problem) i.e using Rest template to make timeouts(removing the threads when they are taking too much time)
+
+                                                                                 * while creating the rest template bean use this for making timeouts.
+                                                                                     
+                                                                                     @Bean
+	                                                                             public RestTemplate getRestTemplate() {
+		                                                                         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+		                                                                         clientHttpRequestFactory.setConnectTimeout(3000);
+		                                                                      return new RestTemplate(clientHttpRequestFactory);
+
+	                                                                              } // here if the thread takes more than 3 sec to give response back then that thread will get timeout(throw an error).
+
+                                                                                  * whenever the request comes in web server for slow microservice and it taking time to process that request and we have set
+                                                                                    the timeout of 3 sec and it can not process that request within that time.And evenually there are more request came within
+                                                                                    that 3 sec time and that threads will not die, it will stay in the webserver and after some time due to more requests, the threads
+                                                                                    will not die,it reaches the maximum no.of threads and the resources get consumed.
+
+                                                                                  * if client calls the movieDB api which is an external api and movieDB is slow due that movie info service become slow.
+                                                                                      which effects every other microservices also due to threads(all the microservices become slow).
+        
+                                                                                  * now come to microservices, whenever the request comes for the movieDB, the web server create the thread and
+                                                                                    it is taking some time to process that and again another request comes for rating data service which will
+                                                                                    very fast and process that request then thread will die.Again the new request comes for movieDB then it will
+                                                                                    takes some time to process that request and so on for other requests also.After sometime the resources get
+                                                                                    consumed(maximum no .of threads).so at this time a new request comes for rating data services usually response
+                                                                                    is very fast but now the response will become slow due to it reached the maximum no.of threads that are waiting
+                                                                                    and also the resources get consumed.So, it will effect the other microservices also.
+
+                                                            
+                                                                                                                               web server
+                                                                                                                         ---------------------
+                                                                                                         request       |                     |
+                                                                                                    ---------------->  |    thread           |------->movieDb
+                                                                                                       request         |                     |-------->rating data service
+                                                                                                    ---------------->  |     thread          |-------->movieDb
+                                                                                                         request       |        :            |         :
+                                                                                                    ---------------->  |        :            |         :
+                                                                                                                       |       thread        |--------->movieDB
+                                                                                                                       |---------------------                    
+
+
+                                                                            
+                                                                              2.whenever we notice that some microservice is slow then let me not send requests to it for a bit and after a period of time let try again
+                                                                                see whether its recover or not.if its still the same(slow) then stop sending requests to it.
+                                                                                     
+                                                                                  * This is the popular pattern in fault tolerance in microservices.
+                                                                                
+                                                                                      Circuit breaker patter(best solution):
+                                                                                                                              * detect something is wrong.
+                                                                                                                              * take remporary steps to avoid the situation getting worse.
+                                                                                                                              * deactivate the problem component so that it does not affect downstream components.
+                                                                                          * Circuit breaker basic function is to interrupt current flow after a fault is detected.
+
+                                                                                          * circuit breaker parameters:  
+                                                                                                                          when does the circuit trip: these are three parameters for circuit breaker
+
+                                                                                                                                       # last n requests to consider for the decision.
+                                                                
+                                                                                                                                       # how many of those should fail -> let say 3 should fail out of 5.
+
+                                                                                                                                       # timeout duration -> lets say 3 sec(mark it as failure when it takes more than 3 sec to process the request).
+
+                                                                                                                          when does the circuit un-trip(back to normal):
+                                                                                                                                                                          # how long after a circuit trip to try again -> let say 5 sec
+                                                                                                                                                                            (after a failure, after how much time will try again to check whether it is sucess or failure).
+
+                                                                                           * whenever you notice that microservice is slow and you need to stop calling that service.
+                                                                                             but what to do when when i get a request for that microservice,in case answer is fallback.
+                                                                                           * whenever the circuit breaks,then we need a fallback to handle that failure:
+                                                                                                                                                                          # throw an error.
+                                    
+                                                                                                                                                                          # return a fallback default response (better approach) i.e hard coded values
+
+                                                                                                                                                                          # save previous responses(cache) and use that when possible.(best approach)
+                                                                                                                                                                            (whenever circuit breaks, the user request for the data and it is available in cache take the data
+                                                                                                                                                                             from the cache and give response to user.The user will never know that the microservice is goes down).
+
+                                                                                           * why circuit breakers:
+                                                                                                                   # failing faster -> this means failing faster instead of failing after some time.
+                                                                                                                   # fallback functionality -> whenever the circuit breaks, we can provide fallback(alternative implementation) to it.
+                                                                                                                   # automatic recovery -> when the circuit breaks, it will check after some time,if it is okay then it recovers or else it fails.
+
+                                                                                           * circuit breaker patter: when to break circuit | what to do when circuit breaks | when to resume requests.
+
+
+
+Hystrix:
+          1.open source library originally created by netflix.
+          2.implements circuit breaker pattern so you don't have to write thread programming.
+          3.give it the configuration parameters and it does the work.
+          4.works well with springboot.
+
+
+Adding Hystrix to a springboot microservice:
+                                             1.Add the dependency spring-cloud-starter-netfilx-hysrix.
+                                             2.Add @EnableCircuitBreaker to the application(main) class.
+                                             3.Add @HystrixCommand to methods that need circuit breakers.(for this annotation add fallbackMethod = "getFallbackMethod" as value and this getFallbackMethod should has same method signature
+                                                                                                           and to add the parameters to it use commandProperties = {
+                                                                                                                                                                       @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value="2000"),
+                                                                                                                                                                       @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value="5"),
+                                                                                                                                                                       @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value="50"),
+                                                                                                                                                                       @HystrixProperty(name = "circuitBreaker.sleepWindowMilliseconds", value="5000")
+                                                                                                                                                                        })
+                                             4.configure Hystrix behaviour.
+
+
+Hystrix Dashboard:
+                   It will display all the data about circuit breakers.
+
+                   1.add spring-cloud-starter-netfilx-hystrix-dashboard and spring-boot-starter-acuator dependencies.
+                   2.add @EnbaleHystrixDashboard annotation in main class.
+                   3.add management.endpoints.web.exposure.include=hystrix.stream in application.properties file.
+                   4.open in browser application-url/hystrix.it will open hystrix dashboard.
+               
+
+                             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
