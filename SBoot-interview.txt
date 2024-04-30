@@ -328,13 +328,55 @@ Note:
 Microservices:
                1.@Bean -> it is like producer.it will create something and whenever someone ask for it will provide to them.
                2.@autowired -> it is like consumer and it will consume for the bean and uses in that class.
+       
+server.port=0 -> the springboot only assigns some port number to the application.
+
+
+Sever Side Discovery service:
+                              let's say service-A wants to communicate with service-B then
+
+                                 1.The client(service-A)- makes a request to a server(load balancer)
+                                 2.That server(load balancer) does a query with a discovery service.
+                                 3.The discovery service responded back with available numbers of instances of service-B that load balancer can call.
+                                 4.Then load balancer server picks up one of the service-B instances and makes a call.
+                                 5.Here the service-A(client) doesn't talk to the discovery service directly,it calls the another server(load balancer)
+                                   which helps to discover service-B url info.
+                                 6.this pattern is called server side discovery service.
+
+Client Side Discovery service:
+                               let's say service-A wants to communicate with service-B then
+
+                                 1.whenever the application starts then the service-A and service-B registers with the discovery service.
+                                 2.when service-A request for service-B then the request goes into discovery service and fetch the informationm
+                                   about the available numbers of instances of service-B and gives back that infomation to the service-A.
+                                 3.The service-A has the load balancer that load balancer maps the request to one of the instances of service-B.
+                                 4.this pattern is called client side discovery service
+
+Client Side Discovery service -> it uses netfilx eureka,zookeeper,consul
+
+
+Sever Side Discovery service ->it uses NGINX,AWS ELB(Elastic Load Balancer).
+
 
 rest template -> it is blocking and synchronous that means it uses one thread per request for api.this means it will wait for a response after making request
                  to a remote server thus blocking the thread this whole time.
 
                  * Rest template is used to create applications that consume RESTful web services for all HTTP methods.
 
-web client -> it is non-blocking and Asynchronous.
+                 Ex: if the user is requesting for something, that request will go to the server there the thread takes 
+                     that request and let say there are total 3 threads are in the server.if the incoming request is
+                     4, the first 3 requests takes 3 threads to process while the 4th requests is in waiting stage(hold)
+                     simply its blocking the 4th request.That why rest template is blocking and synchronous in nature.
+
+web flux -> it is also a non-blocking and Asynchronous and using this web flux we can use web client. 
+       
+              Ex: if the user is requesting for something, for suppose that request is in blocking stage,
+                  in web flux basically it reuses the thread.so whenever the request comes and it takes more time
+                  to respond and again new request comes then that thread takes the new request and process that request.
+                  so whenever the 1st request comes back response then it will also process that request.
+
+                  * Basically it will sit ideal for the responses to come back and it takes new request and so on.
+                    this is called non-blocking and Asynchronous.
 
 
 fault tolerance -> fault tolerance means given a microservice application, what is the impact when there is a fault,
@@ -497,6 +539,10 @@ Hystrix Dashboard:
                    2.add @EnbaleHystrixDashboard annotation in main class.
                    3.add management.endpoints.web.exposure.include=hystrix.stream in application.properties file.
                    4.open in browser application-url/hystrix.it will open hystrix dashboard.
+
+
+
+
                
 
                              
